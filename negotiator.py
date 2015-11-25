@@ -12,7 +12,7 @@ class Negotiator(BaseNegotiator):
     # of the time, and return a random subset the rest of the time.
     def make_offer(self, offer):
         self.offer = offer
-        if random() < 0 and offer is not None:
+        if random() < 0.2 and offer is not None:
             # Very important - we save the offer we're going to return as self.offer
             print "I agree that you can take " + str(self.offer)
             self.offer = BaseNegotiator.set_diff(self)
