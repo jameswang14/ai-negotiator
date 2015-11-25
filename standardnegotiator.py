@@ -25,19 +25,21 @@ class StandardNegotiator(BaseNegotiator):
 
     def generate_offers(self):
         offers = []
-        offer_size = min(self.iter_limit, len(self.preferences)/2)
-        if len(self.preferences) % 2 == 1:
-            if not self.moveFirst:
-                offer_size += len(self.preferences)/2 + 1
+        offer_size = min(self.iter_limit-1, len(self.preferences)/2)
+        # if len(self.preferences) % 2 == 1:
+        #     if self.moveFirst:
+        #         offer_size += len(self.preferences)/2+1
                 
-            else:
-                offer_size += len(self.preferences)/2
-        else:
-            offer_size += len(self.preferences)/2 
+        #     else:
+        #         offer_size += len(self.preferences)/2
+        # else:
+        offer_size += len(self.preferences)/2 
+        if (self.iter_limit-1)/2 > len(self.preferences):
+            offer_size+=1
         curr_offer = []
         for x in xrange(0, self.iter_limit):
             if len(curr_offer) == 0:
-                for y in xrange(0, offer_size):
+                for y in xrange(0, max(offer_size,1)):
                     curr_offer += [self.get_highest_item(curr_offer)]
             else:
                 curr_offer.pop()

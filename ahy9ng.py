@@ -2,15 +2,17 @@ from negotiator_base import BaseNegotiator
 from random import random, randint
 
 
-class SafeNegotiator(BaseNegotiator):
+class MyNegotiator(BaseNegotiator):
 
     def __init__(self):
         self.moveFirst = False
         self.firstOffer = False
         self.currIter = 0
         self.otherNegoWants = {}
+        self.offers = []
         self.visited = []
         self.threshold = 0
+
         BaseNegotiator.__init__(self)
 
     def get_offer_util(self,offer):
@@ -26,13 +28,6 @@ class SafeNegotiator(BaseNegotiator):
     def generate_offers(self):
         offers = []
         offer_size = min(self.iter_limit-1, len(self.preferences)/2)
-        # if len(self.preferences) % 2 == 1:
-        #     if self.moveFirst:
-        #         offer_size += len(self.preferences)/2+1
-                
-        #     else:
-        #         offer_size += len(self.preferences)/2
-        # else:
         offer_size += len(self.preferences)/2 
         if (self.iter_limit-1)/2 > len(self.preferences):
             offer_size+=1
@@ -82,11 +77,34 @@ class SafeNegotiator(BaseNegotiator):
             self.total_util+=util
 
 
+    def modify(self, offer, m):
+        import operator
+        sorted_m = sorted(m.items(), key=operator.itemgetter(1))
+        lowestVal = sorted_m[0][1]
+        ourOffer = self.offer
+        if self.offer is None or len(ourOffer) == 0:
+            for items in m:
+                ourOffer = ourOffer + [items]
+        for item in m:
+            if m[item] == lowestVal:
+                if item not in ourOffer:
+                    ourOffer = ourOffer + [item]
+        idx = len(sorted_m)
+        while(self.get_offer_util(ourOffer) >= self.threshold*self.total_util):
+            idx = idx - 1
+            if sorted_m[idx][0] in ourOffer:
+                ourOffer.remove(sorted_m[idx][0])
+
+        ourOffer = ourOffer + [sorted_m[idx][0]]
+        return ourOffer
+
     def make_offer(self, offer):
         modifiedOffers = []
+        # init threshold
         if self.threshold == 0:
             # will generate threshold from .4 - .5 based on num of items
             self.threshold = .5 - (len(self.preferences)/10000.0)
+
         # init dictionary
         if len(self.otherNegoWants) == 0:
             for item in self.preferences:
@@ -99,10 +117,14 @@ class SafeNegotiator(BaseNegotiator):
         # init moveFirst
         if offer is None:
             self.moveFirst = True
+
         # update dictionary
         else:
             for item in offer:
                 self.otherNegoWants[item] = self.otherNegoWants[item] + 1
+            if not self.moveFirst:
+                modifiedOffers = self.modify(offer,self.otherNegoWants)
+
 
 
         self.currIter+=1
@@ -120,46 +142,39 @@ class SafeNegotiator(BaseNegotiator):
             for item in items:
                 if item != ignore_item:
                     final_offer = final_offer + [item]
-            print "Making last offer: " + str(final_offer)
             self.offer = final_offer
             return self.offer
         if self.currIter == self.iter_limit:
-            print "Last Accept Offer: " + str(BaseNegotiator.set_diff(self)) + str(self.offer)
-            # TODO
-            self.offer = BaseNegotiator.set_diff(self)
-            return self.offer
-
-
+            # Accept if only above absolute minimum threshold
+            if self.utility() > .4 * self.total_util:
+                self.offer = BaseNegotiator.set_diff(self)
+                return self.offer
 
 
 
         # evaluate offer
-        print "Expected val: " + str(.5 * self.total_util)
-        if self.offer is not None:
-            print "Offered val: " + str(self.get_offer_util(BaseNegotiator.set_diff(self)))
-        if self.moveFirst and self.offer is not None and self.get_offer_util(BaseNegotiator.set_diff(self)) > (.5 * self.total_util):
-            self.offer = BaseNegotiator.set_diff(self)
-            return self.offer
+        if self.moveFirst and self.offer is not None and self.get_offer_util(BaseNegotiator.set_diff(self)) > (self.total_util/2):
+            return BaseNegotiator.set_diff(self)
             
         elif self.offer is not None and self.get_offer_util(BaseNegotiator.set_diff(self)) >= (self.threshold*self.total_util):
-            self.offer = BaseNegotiator.set_diff(self)
-            return self.offer
+            return BaseNegotiator.set_diff(self)
+            
 
         # make offer
-        offers = self.generate_offers()
-        print "All offers: " + str(offers)
+        if len(self.offers) == 0:
+            self.offers = self.generate_offers()
         # will try best offer first, rest will be random
         choice = 0
         while choice in self.visited: 
-            choice = randint(0, len(offers)-1)
+            choice = randint(0, len(self.offers)-1)
         self.visited += [choice]
         # if we've visited all, empty
-        if len(self.visited) == len(offers):
+        if len(self.visited) == len(self.offers):
             self.visited = []
-        self.offer = offers[choice]
+        self.offer = self.offers[choice]
 
-        print "Current Iter: " + str(self.currIter)
-        print "Current Offer: " + str(self.offer)
+        if not self.moveFirst:
+            self.offer = modifiedOffers
       
 
         return self.offer
