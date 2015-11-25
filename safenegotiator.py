@@ -10,7 +10,7 @@ class SafeNegotiator(BaseNegotiator):
         self.currIter = 0
         self.otherNegoWants = {}
         self.visited = []
-
+        self.threshold = 0
         BaseNegotiator.__init__(self)
 
     def get_offer_util(self,offer):
@@ -82,6 +82,9 @@ class SafeNegotiator(BaseNegotiator):
 
     def make_offer(self, offer):
         modifiedOffers = []
+        if self.threshold == 0:
+            # will generate threshold from .4 - .5 based on num of items
+            self.threshold = .5 - (len(self.preferences)/10000.0)
         # init dictionary
         if len(self.otherNegoWants) == 0:
             for item in self.preferences:
@@ -136,7 +139,7 @@ class SafeNegotiator(BaseNegotiator):
             self.offer = BaseNegotiator.set_diff(self)
             return self.offer
             
-        elif self.offer is not None and self.get_offer_util(BaseNegotiator.set_diff(self)) >= (.4 * self.total_util):
+        elif self.offer is not None and self.get_offer_util(BaseNegotiator.set_diff(self)) >= (self.threshold*self.total_util):
             self.offer = BaseNegotiator.set_diff(self)
             return self.offer
 

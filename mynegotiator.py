@@ -98,7 +98,7 @@ class MyNegotiator(BaseNegotiator):
                 if item not in ourOffer:
                     ourOffer = ourOffer + [item]
         idx = len(sorted_m)
-        while(self.get_offer_util(ourOffer) >= self.threshold):
+        while(self.get_offer_util(ourOffer) >= self.threshold*self.total_util):
             idx = idx - 1
             if sorted_m[idx][0] in ourOffer:
                 ourOffer.remove(sorted_m[idx][0])
@@ -111,7 +111,7 @@ class MyNegotiator(BaseNegotiator):
         # init threshold
         if self.threshold == 0:
             # will generate threshold from .4 - .5 based on num of items
-            self.threshold = .5 - (len(self.preferences)/10000)
+            self.threshold = .5 - (len(self.preferences)/10000.0)
 
         # init dictionary
         if len(self.otherNegoWants) == 0:
@@ -167,7 +167,7 @@ class MyNegotiator(BaseNegotiator):
         if self.moveFirst and self.offer is not None and self.get_offer_util(BaseNegotiator.set_diff(self)) > (self.total_util/2):
             return BaseNegotiator.set_diff(self)
             
-        elif self.offer is not None and self.get_offer_util(BaseNegotiator.set_diff(self)) >= (self.threshold):
+        elif self.offer is not None and self.get_offer_util(BaseNegotiator.set_diff(self)) >= (self.threshold*self.total_util):
             return BaseNegotiator.set_diff(self)
             
 
