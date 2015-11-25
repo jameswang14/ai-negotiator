@@ -4,7 +4,7 @@ from negotiator_base import BaseNegotiator
 from random import random, randint
 
 
-class MyNegotiator(BaseNegotiator):
+class ahy9ng(BaseNegotiator):
 
     def __init__(self):
         self.moveFirst = False
