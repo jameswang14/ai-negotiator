@@ -115,6 +115,7 @@ class StandardNegotiator(BaseNegotiator):
 
         # make offer
         offers = self.generate_offers()
+        print "test"
         print "All offers: " + str(offers)
         # will try best offer first, rest will be random
         choice = 0
