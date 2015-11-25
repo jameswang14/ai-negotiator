@@ -25,7 +25,7 @@ class MyNegotiator(BaseNegotiator):
 
 
     def generate_offers(self):
-        print "generating offers"
+        #print "generating offers"
         offers = []
         offer_size = min(self.iter_limit, len(self.preferences)/2)
         if len(self.preferences) % 2 == 1:

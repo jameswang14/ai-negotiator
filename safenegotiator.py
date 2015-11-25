@@ -34,24 +34,32 @@ class SafeNegotiator(BaseNegotiator):
                 offer_size += len(self.preferences)/2
         else:
             offer_size += len(self.preferences)/2 
-        print "AFDS " + str(offer_size) 
+        curr_offer = []
         for x in xrange(0, self.iter_limit):
-            curr_offer = []
-            for y in xrange(0, offer_size):
-                curr_offer += [self.get_highest_item(curr_offer)]
-            if self.get_offer_util(curr_offer) < (.4 * self.total_util):
+            if len(curr_offer) == 0:
+                for y in xrange(0, offer_size):
+                    curr_offer += [self.get_highest_item(curr_offer)]
+            else:
+                curr_offer.pop()
+            # if less than expected value
+            if self.get_offer_util(curr_offer) < self.total_util/2:
                 break
-            offers += [curr_offer]
-            offer_size-=1
+            copy_offer = []
+            for ele in curr_offer:
+                copy_offer.append(ele)
+            offers += [copy_offer]
         return offers
     
     def get_highest_item(self, ignore):
         highest_util = 0
         highest_item = None
         for item, util in self.preferences.iteritems():
-            if util > highest_util and ignore is not None and item not in ignore:
-                highest_util = util
-                highest_item = item
+            if util > highest_util:
+                if ignore is not None and item in ignore:
+                    continue
+                else:
+                    highest_util = util
+                    highest_item = item
         return highest_item
 
     def get_lowest_item(self, ignore):
