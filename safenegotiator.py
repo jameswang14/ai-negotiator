@@ -48,7 +48,7 @@ class SafeNegotiator(BaseNegotiator):
             for ele in curr_offer:
                 copy_offer.append(ele)
             offers += [copy_offer]
-        return offers
+        return Offers
     
     def get_highest_item(self, ignore):
         highest_util = 0
