@@ -111,7 +111,7 @@ if __name__ == "__main__":
     score_a = score_b = 0
     # We will replace Negotiator here with <your id>_Negotiator, as specified in the Readme
     negotiator_a = StandardNegotiator()
-    negotiator_b = StandardNegotiator()
+    negotiator_b = MyNegotiator()
     for scenario in argv[1:]:
         # Get the scenario parameters
         (num_iters, mapping) = read_scenario(scenario)
