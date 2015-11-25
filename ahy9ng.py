@@ -1,3 +1,5 @@
+#James Wang (jjw6wz)
+#Andrew Yang (ahy9ng)
 from negotiator_base import BaseNegotiator
 from random import random, randint
 
